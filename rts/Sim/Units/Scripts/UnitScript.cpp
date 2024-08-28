@@ -1253,9 +1253,11 @@ int CUnitScript::GetUnitVal(int val, int p1, int p2, int p3, int p4)
 
 		if (u->beingBuilt) {
 			// no explosions and no corpse for units under construction
-			u->KillUnit(nullptr, false, true);
+            LOG_L(L_NOTICE, "KillUnit() from UnitScript, unit being built - id: %d, %s", u->id, __func__);
+			u->KillUnit(nullptr, false, true, -CSolidObject::DAMAGE_LUS);
 		} else {
-			u->KillUnit(nullptr, p2 != 0, p3 != 0);
+            LOG_L(L_NOTICE, "KillUnit() from UnitScript - id: %d, %s", u->id, __func__);
+			u->KillUnit(nullptr, p2 != 0, p3 != 0, -CSolidObject::DAMAGE_LUS);
 		}
 
 		return 1;

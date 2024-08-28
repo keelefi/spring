@@ -447,25 +447,29 @@ void CUnit::FinishedBuilding(bool postInit)
 		f->blockHeightChanges = true;
 
 		UnBlock();
+        LOG_L(L_NOTICE, "KillUnit() from finished building, wreckage ?? - id: %d, %s", id, __func__);
 		KillUnit(nullptr, false, true);
 	}
 }
 
 
-void CUnit::KillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed)
+void CUnit::KillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed, int weaponDefID)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
 	if (IsCrashing() && !beingBuilt)
 		return;
 
-	ForcedKillUnit(attacker, selfDestruct, reclaimed);
+	ForcedKillUnit(attacker, selfDestruct, reclaimed, weaponDefID);
 }
 
-void CUnit::ForcedKillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed)
+void CUnit::ForcedKillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed, int weaponDefID)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
 	if (isDead)
+    {
+        LOG_L(L_NOTICE, "isDead, no action - id: %d, %s", id, __func__);
 		return;
+    }
 
 	isDead = true;
 
@@ -763,9 +767,10 @@ void CUnit::ReleaseTransportees(CUnit* attacker, bool selfDestruct, bool reclaim
 		if (!unitDef->releaseHeld) {
 			// we don't want transportees to leave a corpse
 			if (!selfDestruct)
-				transportee->DoDamage(DamageArray(1e6f), ZeroVector, nullptr, -DAMAGE_EXTSOURCE_KILLED, -1);
+				transportee->DoDamage(DamageArray(1e6f), ZeroVector, nullptr, -CSolidObject::DAMAGE_TRANSPORT_KILLED, -1);
 
-			transportee->KillUnit(attacker, selfDestruct, reclaimed);
+            LOG_L(L_NOTICE, "KillUnit() from release transportees - id: %d, %s", id, __func__);
+			transportee->KillUnit(attacker, selfDestruct, reclaimed, -CSolidObject::DAMAGE_TRANSPORT_KILLED);
 		} else {
 			// NOTE: game's responsibility to deal with edge-cases now
 			transportee->Move(transportee->pos.cClampInBounds(), false);
@@ -956,6 +961,7 @@ void CUnit::SlowUpdate()
 	DoWaterDamage();
 
 	if (health < 0.0f) {
+        LOG_L(L_NOTICE, "KillUnit() when unit has no health left - id: %d, %s", id, __func__);
 		KillUnit(nullptr, false, true);
 		return;
 	}
@@ -993,7 +999,8 @@ void CUnit::SlowUpdate()
 	if (selfDCountdown > 0) {
 		if ((selfDCountdown -= 1) == 0) {
 			// avoid unfinished buildings making an explosion
-			KillUnit(nullptr, !beingBuilt, beingBuilt);
+            LOG_L(L_NOTICE, "KillUnit() as self-d timer expired - id: %d, %s", id, __func__);
+			KillUnit(nullptr, !beingBuilt, beingBuilt, -CSolidObject::DAMAGE_SELFD_EXPIRED);
 			return;
 		}
 
@@ -1014,7 +1021,10 @@ void CUnit::SlowUpdate()
 			AddMetal(cost.metal * buildDecay, false);
 
 			if (health <= 0.0f || buildProgress <= 0.0f)
-				KillUnit(nullptr, false, true);
+            {
+                LOG_L(L_NOTICE, "KillUnit() from decay - id: %d, %s", id, __func__);
+				KillUnit(nullptr, false, true, -CSolidObject::DAMAGE_DECAY);
+            }
 		}
 
 		ScriptDecloak(nullptr, nullptr);
@@ -1110,7 +1120,8 @@ void CUnit::SlowUpdateKamikaze(bool scanForTargets)
 				continue;
 
 			// (by default) self-destruct when target starts moving away from us, should maximize damage
-			KillUnit(nullptr, true, false);
+            LOG_L(L_NOTICE, "KillUnit() from kamikaze helper function - id: %d, %s", id, __func__);
+			KillUnit(nullptr, true, false, -CSolidObject::DAMAGE_KAMIKAZE_ACTIVATED);
 			return;
 		}
 	}
@@ -1134,7 +1145,8 @@ void CUnit::SlowUpdateKamikaze(bool scanForTargets)
 	if (!kill)
 		return;
 
-	KillUnit(nullptr, true, false);
+    LOG_L(L_NOTICE, "KillUnit() from kamikaze - id: %d, %s", id, __func__);
+	KillUnit(nullptr, true, false, -CSolidObject::DAMAGE_KAMIKAZE_ACTIVATED);
 }
 
 
@@ -1334,7 +1346,8 @@ void CUnit::DoDamage(
 	if (health > 0.0f)
 		return;
 
-	KillUnit(attacker, false, false);
+    LOG_L(L_NOTICE, "KillUnit() from do damage - id: %d, %s", id, __func__);
+	KillUnit(attacker, false, false, weaponDefID);
 
 	if (!isDead)
 		return;
@@ -2055,7 +2068,8 @@ bool CUnit::AddBuildPower(CUnit* builder, float amount)
 		if (killMe || buildProgress <= 0.0f || health <= 0.0f) {
 			health = 0.0f;
 			buildProgress = 0.0f;
-			KillUnit(nullptr, false, true);
+            LOG_L(L_NOTICE, "KillUnit() from reclaim finished - id: %d, %s", id, __func__);
+			KillUnit(nullptr, false, true, -CSolidObject::DAMAGE_RECLAIMED);
 			return false;
 		}
 

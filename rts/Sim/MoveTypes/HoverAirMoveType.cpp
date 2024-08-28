@@ -961,7 +961,8 @@ bool CHoverAirMoveType::Update()
 			UpdateAirPhysics();
 
 			if ((CGround::GetHeightAboveWater(owner->pos.x, owner->pos.z) + 5.0f + owner->radius) > owner->pos.y) {
-				owner->ForcedKillUnit(nullptr, true, false);
+                LOG_L(L_NOTICE, "ForcedKillUnit() from HoverAirMoveType, aircraft crashing - id: %d, %s", owner->id, __func__);
+				owner->ForcedKillUnit(nullptr, true, false, -CSolidObject::DAMAGE_AIRCRAFT_CRASHED);
 			} else {
 				#define SPIN_DIR(o) ((o->id & 1) * 2 - 1)
 				wantedHeading = GetHeadingFromVector(owner->rightdir.x * SPIN_DIR(owner), owner->rightdir.z * SPIN_DIR(owner));
@@ -1124,7 +1125,8 @@ bool CHoverAirMoveType::HandleCollisions(bool checkCollisions)
 		}
 
 		if (hitBuilding && owner->IsCrashing()) {
-			owner->ForcedKillUnit(nullptr, true, false);
+            LOG_L(L_NOTICE, "ForcedKillUnit() from HoverAirMoveType, aircraft hit building while crashing - id: %d, %s", owner->id, __func__);
+			owner->ForcedKillUnit(nullptr, true, false, -CSolidObject::DAMAGE_AIRCRAFT_CRASHED);
 			return true;
 		}
 

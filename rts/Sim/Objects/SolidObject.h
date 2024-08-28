@@ -90,14 +90,25 @@ public:
 		CSTATE_BIT_QUADMAPRAYS  = (1 << 2),
 	};
 	enum DamageType {
-		DAMAGE_EXPLOSION_WEAPON  = 0, // weapon-projectile that triggered GameHelper::Explosion (weaponDefID >= 0)
-		DAMAGE_EXPLOSION_DEBRIS  = 1, // piece-projectile that triggered GameHelper::Explosion (weaponDefID < 0)
-		DAMAGE_COLLISION_GROUND  = 2, // ground collision
-		DAMAGE_COLLISION_OBJECT  = 3, // object collision
-		DAMAGE_EXTSOURCE_FIRE    = 4,
-		DAMAGE_EXTSOURCE_WATER   = 5, // lava/acid/etc
-		DAMAGE_EXTSOURCE_KILLED  = 6,
-		DAMAGE_EXTSOURCE_CRUSHED = 7,
+		DAMAGE_EXPLOSION_WEAPON   = 0, // weapon-projectile that triggered GameHelper::Explosion (weaponDefID >= 0)
+		DAMAGE_EXPLOSION_DEBRIS   = 1, // piece-projectile that triggered GameHelper::Explosion (weaponDefID < 0)
+		DAMAGE_COLLISION_GROUND   = 2, // ground collision
+		DAMAGE_COLLISION_OBJECT   = 3, // object collision
+		DAMAGE_EXTSOURCE_FIRE     = 4,
+		DAMAGE_EXTSOURCE_WATER    = 5, // lava/acid/etc
+		DAMAGE_EXTSOURCE_KILLED   = 6,
+		DAMAGE_EXTSOURCE_CRUSHED  = 7,
+        DAMAGE_KAMIKAZE_ACTIVATED = 8,
+        DAMAGE_SELFD_EXPIRED      = 9,
+        DAMAGE_AIRCRAFT_CRASHED   = 10,
+        DAMAGE_DECAY              = 11,
+        DAMAGE_RECLAIMED          = 12,
+        DAMAGE_TRANSPORT_KILLED   = 13,
+        DAMAGE_FACTORY_KILLED     = 14,
+        DAMAGE_FACTORY_CANCEL     = 15,
+        DAMAGE_LUS                = 16,
+        DAMAGE_KILLED_GAME        = 17,
+        DAMAGE_KILLED_LUA         = 18,
 	};
 
 	virtual ~CSolidObject() {}

@@ -65,15 +65,17 @@ CFactory::CFactory()
 	, lastBuildUpdateFrame(-1)
 { }
 
-void CFactory::KillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed)
+void CFactory::KillUnit(CUnit* attacker, bool selfDestruct, bool reclaimed, int weaponDefID)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
 	if (curBuild != nullptr) {
-		curBuild->KillUnit(nullptr, false, true);
+        LOG_L(L_NOTICE, "KillUnit() from UnitFactory, kill building unit - id: %d, %s", curBuild->id, __func__);
+		curBuild->KillUnit(nullptr, false, true, -CSolidObject::DAMAGE_FACTORY_KILLED);
 		curBuild = nullptr;
 	}
 
-	CUnit::KillUnit(attacker, selfDestruct, reclaimed);
+    LOG_L(L_NOTICE, "KillUnit() from UnitFactory - id: %d, %s", id, __func__);
+	CUnit::KillUnit(attacker, selfDestruct, reclaimed, weaponDefID);
 }
 
 void CFactory::PreInit(const UnitLoadParams& params)
@@ -312,7 +314,8 @@ void CFactory::StopBuild()
 	if (curBuild) {
 		if (curBuild->beingBuilt) {
 			AddMetal(curBuild->cost.metal * curBuild->buildProgress, false);
-			curBuild->KillUnit(nullptr, false, true);
+            LOG_L(L_NOTICE, "KillUnit() from UnitFactory, building unit cancelled - id: %d, %s", curBuild->id, __func__);
+			curBuild->KillUnit(nullptr, false, true, -CSolidObject::DAMAGE_FACTORY_CANCEL);
 		}
 		DeleteDeathDependence(curBuild, DEPENDENCE_BUILD);
 	}

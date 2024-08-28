@@ -1731,7 +1731,8 @@ int LuaSyncedCtrl::DestroyUnit(lua_State* L)
 	inDestroyUnit++;
 
 	ASSERT_SYNCED(unit->id);
-	unit->ForcedKillUnit(attacker, selfDestr, reclaimed);
+    LOG_L(L_NOTICE, "ForcedKillUnit() from LuaSyncedCtrl - id: %d, %s", unit->id, __func__);
+	unit->ForcedKillUnit(attacker, selfDestr, reclaimed, -CSolidObject::DAMAGE_KILLED_LUA);
 
 	if (recycleID)
 		unitHandler.GarbageCollectUnit(unit->id);
